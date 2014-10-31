@@ -2,8 +2,8 @@
     "_comments": [
                   "Valid terminal is 'iTerm'. 'Terminal.app' has not been supported yet",
                   "Hosts will also be read from your ~/.ssh/config or /etc/ssh_config file, if available",
-                  "For more information on how to configure, please see http://fitztrev.github.io/shuttle/"
-                  "adjust delay to fit your network and default delay is 1s",
+                  "For more information on how to configure, please see http://riverhxz.github.io/shuttle/",
+                  "adjust delay to fit your network and default delay is 1s"
                   ],
     "terminal": "iTerm",
     "launch_at_login": false,
