@@ -71,7 +71,6 @@ This project was created by Trevor Fitzgerald. I owe many thanks to the followin
 
 (In alphabetical order)
 
-* Alex Carter
 * Dave Eddy
 * Dmitry Filimonov
 * Frank Enderle

@@ -12,7 +12,7 @@
 		0ADB3B0E178EF8DB004E9BB9 /* StatusIcon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0ADB3B0A178EF8DB004E9BB9 /* StatusIcon@2x.png */; };
 		0ADB3B0F178EF8DB004E9BB9 /* StatusIconAlt@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0ADB3B0B178EF8DB004E9BB9 /* StatusIconAlt@2x.png */; };
 		0ADB3B13178F3DE4004E9BB9 /* LaunchAtLoginController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ADB3B12178F3DE4004E9BB9 /* LaunchAtLoginController.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		7E74A7C61789CE2F0079E0D2 /* shuttle.default.json in Resources */ = {isa = PBXBuildFile; fileRef = 7E74A7C51789CE2F0079E0D2 /* shuttle.default.json */; };
+		7E74A7C61789CE2F0079E0D2 /* ishuttle.default.json in Resources */ = {isa = PBXBuildFile; fileRef = 7E74A7C51789CE2F0079E0D2 /* ishuttle.default.json */; };
 		C149EBFE15D5214600B1F558 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C149EBFD15D5214600B1F558 /* Cocoa.framework */; };
 		C149EC0815D5214600B1F558 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = C149EC0615D5214600B1F558 /* InfoPlist.strings */; };
 		C149EC0A15D5214600B1F558 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C149EC0915D5214600B1F558 /* main.m */; };
@@ -30,7 +30,7 @@
 		0ADB3B11178F3DE4004E9BB9 /* LaunchAtLoginController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LaunchAtLoginController.h; sourceTree = "<group>"; };
 		0ADB3B12178F3DE4004E9BB9 /* LaunchAtLoginController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LaunchAtLoginController.m; sourceTree = "<group>"; };
 		7E72D21E178003ED00A6389C /* Shuttle.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Shuttle.entitlements; sourceTree = "<group>"; };
-		7E74A7C51789CE2F0079E0D2 /* shuttle.default.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = shuttle.default.json; sourceTree = "<group>"; };
+		7E74A7C51789CE2F0079E0D2 /* ishuttle.default.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ishuttle.default.json; sourceTree = "<group>"; };
 		C149EBF915D5214600B1F558 /* Shuttle.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Shuttle.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C149EBFD15D5214600B1F558 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		C149EC0015D5214600B1F558 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -109,7 +109,7 @@
 		C149EC0315D5214600B1F558 /* Shuttle */ = {
 			isa = PBXGroup;
 			children = (
-				7E74A7C51789CE2F0079E0D2 /* shuttle.default.json */,
+				7E74A7C51789CE2F0079E0D2 /* ishuttle.default.json */,
 				7E72D21E178003ED00A6389C /* Shuttle.entitlements */,
 				C159DC2715D5DE7F00F5DE24 /* shuttle.icns */,
 				0ADB3B11178F3DE4004E9BB9 /* LaunchAtLoginController.h */,
@@ -161,7 +161,7 @@
 		C149EBF015D5214600B1F558 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0440;
+				LastUpgradeCheck = 0600;
 				ORGANIZATIONNAME = fitztrev;
 			};
 			buildConfigurationList = C149EBF315D5214600B1F558 /* Build configuration list for PBXProject "Shuttle" */;
@@ -194,7 +194,7 @@
 				C149EC0E15D5214600B1F558 /* Credits.rtf in Resources */,
 				C149EC1415D5214600B1F558 /* MainMenu.xib in Resources */,
 				C159DC2815D5DE8000F5DE24 /* shuttle.icns in Resources */,
-				7E74A7C61789CE2F0079E0D2 /* shuttle.default.json in Resources */,
+				7E74A7C61789CE2F0079E0D2 /* ishuttle.default.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -245,7 +245,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -273,7 +272,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;

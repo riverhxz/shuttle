@@ -1,0 +1,34 @@
+{
+    "_comments": [
+                  "Valid terminal is 'iTerm'. 'Terminal.app' has not been supported yet",
+                  "Hosts will also be read from your ~/.ssh/config or /etc/ssh_config file, if available",
+                  "For more information on how to configure, please see http://fitztrev.github.io/shuttle/"
+                  "adjust delay to fit your network and default delay is 1s",
+                  ],
+    "terminal": "iTerm",
+    "launch_at_login": false,
+    "show_ssh_config_hosts": true,
+    "ssh_config_ignore_hosts": [],
+    "ssh_config_ignore_keywords": [],
+    "hosts": [
+              {
+              "name": "gj relay",
+              "cmd": "ssh hehehe@xxx.corp.relay.com",
+              "delay": "2",
+              "pwd":"password",
+              "_jump2":[
+                        {
+                        "name": "xxx-xxx-xx",
+                        "cmd": "ssh 131.124.125.1",
+                        "pwd": "password"
+                        },
+                        {
+                        "name": "gate",
+                        "cmd": "ssh xxx",
+                        "pwd": "password",
+                        "delay":"2"
+                        }
+                        ]
+              }
+              ]
+}

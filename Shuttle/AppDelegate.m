@@ -8,39 +8,24 @@
 @implementation AppDelegate
 
 - (void) awakeFromNib {
-    // The path for the configuration file (by default: ~/.shuttle.json)
-    shuttleConfigFile = [NSHomeDirectory() stringByAppendingPathComponent:@".shuttle.json"];
+    // The path for the configuration file (by default: ~/.ishuttle.json)
+    shuttleConfigFile = [NSHomeDirectory() stringByAppendingPathComponent:@".ishuttle.json"];
     
     // if the config file does not exist, create a default one
     if ( ![[NSFileManager defaultManager] fileExistsAtPath:shuttleConfigFile] ) {
-        NSString *cgFileInResource = [[NSBundle mainBundle] pathForResource:@"shuttle.default" ofType:@"json"];
+        NSString *cgFileInResource = [[NSBundle mainBundle] pathForResource:@"ishuttle.default" ofType:@"json"];
         [[NSFileManager defaultManager] copyItemAtPath:cgFileInResource toPath:shuttleConfigFile error:nil];
     }
 
     // Load the menu content
     // [self loadMenu];
-
-    // Define Icons
-    regularIcon = [NSImage imageNamed:@"StatusIcon"];
-    altIcon = [NSImage imageNamed:@"StatusIconAlt"];
-    
-    // Check for AppKit Version, add support for darkmode if > 10.9
-    BOOL oldAppKitVersion = (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_9);
-    
-    if (!oldAppKitVersion)
-    {
-        // 10.10 or higher, add support to icon for auto detection of Regular/Dark mode
-        [regularIcon setTemplate:YES];
-        [altIcon setTemplate:YES];
-    }
     
     // Create the status bar item
     statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:25.0];
-    
     [statusItem setMenu:menu];
     [statusItem setHighlightMode:YES];
-    [statusItem setImage: regularIcon];
-    [statusItem setAlternateImage: altIcon];
+    [statusItem setImage:[NSImage imageNamed:@"StatusIcon"]];
+    [statusItem setAlternateImage:[NSImage imageNamed:@"StatusIconAlt"]];
 
     launchAtLoginController = [[LaunchAtLoginController alloc] init];
     
@@ -242,7 +227,7 @@
                 for (NSDictionary* item in itemList) {
                     // if we encounter an item with cmd/name then we have to bail
                     // since there's no way we can dig deeper here
-                    if (item[@"cmd"] || item[@"name"]) {
+                    if (item[@"cmd"] || item[@"name"]||item[@"pwd"]) {
                         continue;
                     }
                     
@@ -288,98 +273,119 @@
         }
     }
     
+
     // feed the final result into the recursive method which builds the menu
-    [self buildMenu:shuttleHosts addToMenu:menu];
+    [self buildMenu:shuttleHosts addToMenu:menu parentList:[[NSMutableArray alloc] init]];
 }
 
-- (void) buildMenu:(NSArray*)data addToMenu:(NSMenu *)m {
-    // go through the array and sort out the menus and the leafs into
-    // separate bucks so we can sort them independently.
-    NSMutableDictionary* menus = [[NSMutableDictionary alloc] init];
-    NSMutableDictionary* leafs = [[NSMutableDictionary alloc] init];
-    
+- (void) buildMenu:(NSArray*)data addToMenu:(NSMenu *)m parentList:(NSMutableArray *)parents{
+  
+  //build memuItem
+    int index = 0;
     for (NSDictionary* item in data) {
-        if (item[@"cmd"] && item[@"name"]) {
-            // this is a leaf
-            [leafs setObject:item forKey:item[@"name"]];
-        } else {
-            // must be a menu - add all instances
-            for (NSString* key in item) {
-                [menus setObject:item[key] forKey:key];
+        NSMutableDictionary* meta = [[NSMutableDictionary alloc] init];
+        if (item[@"name"]) {
+            //meta data of menuItem
+            [meta setObject:item[@"name"] forKey:@"name"];
+            if (item[@"cmd"]) {
+                [meta setObject:item[@"cmd"] forKey:@"cmd"];
+            }
+            if (item[@"delay"]) {
+                [meta setObject:item[@"delay"] forKey:@"delay"];
+            }
+            if (item[@"pwd"]) {
+                [meta setObject:item[@"pwd"] forKey:@"pwd"];
             }
         }
-    }
-    
-    NSArray* menuKeys = [[menus allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
-    NSArray* leafKeys = [[leafs allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
-    
-    NSInteger pos = 0;
-    
-    // create menus first
-    for (NSString* key in menuKeys) {
-        NSMenu* subMenu = [[NSMenu alloc] init];
         NSMenuItem* menuItem = [[NSMenuItem alloc] init];
-        [menuItem setTitle:key];
-        [menuItem setSubmenu:subMenu];
-        [m insertItem:menuItem atIndex:pos++];
-
-        // build submenu
-        [self buildMenu:menus[key] addToMenu:subMenu];
-    }
-    
-    // now create leafs
-    for (NSString *key in leafKeys) {
-        NSDictionary* cfg = leafs[key];
-        NSMenuItem* menuItem = [[NSMenuItem alloc] init];
-        [menuItem setTitle:cfg[@"name"]];
-        [menuItem setRepresentedObject:cfg[@"cmd"]];
+        [menuItem setTitle:meta[@"name"]];
+        
+        NSMutableArray *node_chain = [[NSMutableArray alloc] init];
+        [node_chain addObject:meta];
+        
+        id tag;
+        NSEnumerator *paEnum = [parents reverseObjectEnumerator];
+        while (tag = [paEnum nextObject]) {
+            [node_chain addObject:tag];
+        }
+        [menuItem setRepresentedObject:node_chain];
         [menuItem setAction:@selector(openHost:)];
-        [m insertItem:menuItem atIndex:pos++];
+        
+        //if item contain subitem that is a menu
+        
+        if(item[@"_jump2"]){
+                NSMenu* subMenu = [[NSMenu alloc] init];
+                [menuItem setTitle:item[@"name"]];
+                [menuItem setSubmenu:subMenu];
+                [parents addObject:meta];
+            
+                //build jump list
+                [self buildMenu:item[@"_jump2"] addToMenu:subMenu parentList:parents];
+                [parents removeObject:meta];
+             }
+        // add menuItem to menu;
+        [m insertItem:menuItem atIndex:index];
+        }
+
+        ++index;
     }
-}
+
+
 
 - (void) openHost:(NSMenuItem *) sender {
     //NSLog(@"sender: %@", sender);
     //NSLog(@"Command: %@",[sender representedObject]);
+    NSString *part1 =
+    @"on ApplicationIsRunning(appName) \n"
+    @"  tell application \"System Events\" to set appNameIsRunning to exists (processes where name is appName) \n"
+    @"  return appNameIsRunning \n"
+    @"end ApplicationIsRunning \n"
+    @" \n"
+    @"set isRunning to ApplicationIsRunning(\"iTerm\") \n"
+    @" \n"
+    @"tell application \"iTerm\" \n"
+    @"  tell the current terminal \n"
+    @"      if isRunning then \n"
+    @"          set newSession to (launch session \"Default Session\") \n"
+    @"          tell the last session \n"
+    @"              write text \"clear\" \n";
     
-    NSString *escapedObject = [[sender representedObject] stringByReplacingOccurrencesOfString:@"\"" withString:@"\\\""];
+    NSString *part2 =
+    @"          end tell \n"
+    @"      else \n"
+    @"          tell the current session \n";
     
-    // Check if Url
-    NSURL* url = [NSURL URLWithString:[sender representedObject]];
-    if(url)
-    {
-        [[NSWorkspace sharedWorkspace] openURL:url];
+    NSString *part3 =
+    @"              activate \n"
+    @"          end tell \n"
+    @"      end if \n"
+    @"  end tell \n"
+    @"end tell \n";
+    NSArray *cont = [sender representedObject];
+    NSEnumerator *con_enum = [cont reverseObjectEnumerator];
+    NSDictionary *server_conf;
+    NSMutableString *buffer = [NSMutableString stringWithCapacity:2048];
+
+    while (server_conf = [con_enum nextObject]) {
+        NSString *tmp =server_conf[@"delay"]?server_conf[@"delay"]:nil;
+        double delay = tmp?[tmp doubleValue]:1.0;
+        [buffer appendFormat:@"              write text \"%@\"\n ", server_conf[@"cmd"]];
+        [buffer appendFormat:@"              delay %f \n",delay];
+        if (server_conf[@"pwd"]){
+            [buffer appendFormat:@"              write text \"%@\"\n ", server_conf[@"pwd"]];
+            [buffer appendFormat:@"              delay %f \n",delay];
+        }
+        
     }
-    else if ( [terminalPref isEqualToString: @"iterm"] ) {
+    NSString *cmdString = [NSString stringWithFormat:@"%@%@%@%@%@", part1, buffer, part2, buffer, part3];
+
+
+    if ( [terminalPref isEqualToString: @"iterm"] ) {
         NSAppleScript* iTerm2 = [[NSAppleScript alloc] initWithSource:
-                                   [NSString stringWithFormat:
-                                    @"on ApplicationIsRunning(appName) \n"
-                                    @"  tell application \"System Events\" to set appNameIsRunning to exists (processes where name is appName) \n"
-                                    @"  return appNameIsRunning \n"
-                                    @"end ApplicationIsRunning \n"
-                                    @" \n"
-                                    @"set isRunning to ApplicationIsRunning(\"iTerm\") \n"
-                                    @" \n"
-                                    @"tell application \"iTerm\" \n"
-                                    @"  tell the current terminal \n"
-                                    @"      if isRunning then \n"
-                                    @"          set newSession to (launch session \"Default Session\") \n"
-                                    @"          tell the last session \n"
-                                    @"              write text \"clear\" \n"
-                                    @"              write text \"%1$@\" \n"
-                                    @"          end tell \n"
-                                    @"      else \n"
-                                    @"          tell the current session \n"
-                                    @"              write text \"clear\" \n"
-                                    @"              write text \"%1$@\" \n"
-                                    @"              activate \n"
-                                    @"          end tell \n"
-                                    @"      end if \n"
-                                    @"  end tell \n"
-                                    @"end tell \n"
-                                    , escapedObject]];
+                                  cmdString];
         [iTerm2 executeAndReturnError:nil];
     } else {
+/*       
         NSAppleScript* terminalapp = [[NSAppleScript alloc] initWithSource:
                                       [NSString stringWithFormat:
                                        @"on ApplicationIsRunning(appName) \n"
@@ -401,8 +407,9 @@
                                        @"      activate \n"
                                        @"  end if \n"
                                        @"end tell \n"
-                                       , escapedObject]];
+                                       , cmdString]];
         [terminalapp executeAndReturnError:nil];
+ */
     }
 }
 
@@ -411,14 +418,14 @@
     NSInteger tvarNSInteger	= [openPanelObj runModal];
     if(tvarNSInteger == NSOKButton){
         //Backup the current configuration
-        [[NSFileManager defaultManager] moveItemAtPath:shuttleConfigFile toPath: [NSHomeDirectory() stringByAppendingPathComponent:@".shuttle.json.backup"] error: nil];
+        [[NSFileManager defaultManager] moveItemAtPath:shuttleConfigFile toPath: [NSHomeDirectory() stringByAppendingPathComponent:@".ishuttle.json.backup"] error: nil];
         
         NSURL * selectedFileUrl = [openPanelObj URL];
         //Import the selected file
         //NSLog(@"copy filename from %@ to %@",selectedFileUrl.path,shuttleConfigFile);
         [[NSFileManager defaultManager] copyItemAtPath:selectedFileUrl.path toPath:shuttleConfigFile error:nil];
         //Delete the old configuration file
-        [[NSFileManager defaultManager] removeItemAtPath:[NSHomeDirectory() stringByAppendingPathComponent:@".shuttle.json.backup"]  error: nil];
+        [[NSFileManager defaultManager] removeItemAtPath:[NSHomeDirectory() stringByAppendingPathComponent:@".ishuttle.json.backup"]  error: nil];
     } else {
      	return;
     }
@@ -442,7 +449,7 @@
 }
 
 - (IBAction)showAbout:(id)sender {
-    [[NSWorkspace sharedWorkspace] openURL: [NSURL URLWithString:@"http://fitztrev.github.io/shuttle"]];
+    [[NSWorkspace sharedWorkspace] openURL: [NSURL URLWithString:@"http://riverhxz.github.io/shuttle"]];
 }
 
 - (IBAction)quit:(id)sender {

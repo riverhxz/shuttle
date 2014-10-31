@@ -10,13 +10,23 @@ tell application "iTerm"
 		if isRunning then
 			set newSession to (launch session "Default Session")
 			tell the last session
-				write text "clear"
-				write text "%1$@"
+				write text "expect"
+				write text "spawn ssh huanghaihun@192.168.64.250" 
+				write text "expect \"assword:\""
+				write text "sleep 0.3"
+				write text "send \"G123654j\""
+				write text "interact
+"
 			end tell
 		else
 			tell the current session
-				write text "clear"
-				write text "%1$@"
+				write text "expect"
+				write text "spawn ssh huanghaihun@192.168.64.250"
+				write text "expect \"assword:\""
+				write text "sleep 0.3"
+				write text "send \"G123654j\""
+				write text "interact
+"
 				activate
 			end tell
 		end if
