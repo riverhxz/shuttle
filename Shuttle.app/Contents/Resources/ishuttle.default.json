@@ -1,0 +1,33 @@
+{
+    "_comments": [
+                  "Valid terminals include: 'Terminal.app' or 'iTerm'",
+                  "Hosts will also be read from your ~/.ssh/config or /etc/ssh_config file, if available",
+                  "For more information on how to configure, please see http://fitztrev.github.io/shuttle/"
+                  ],
+    "terminal": "iTerm",
+    "launch_at_login": false,
+    "show_ssh_config_hosts": true,
+    "ssh_config_ignore_hosts": [],
+    "ssh_config_ignore_keywords": [],
+    "hosts": [
+              {
+              "name": "gj relay",
+              "cmd": "ssh huanghaihun@192.168.64.250",
+              "delay": "0.5",
+              "pwd":"password",
+              "_jump2":[
+                        {
+                        "name": "yz-ana-vm-sim",
+                        "cmd": "ssh 192.168.129.126",
+                        "pwd": "password"
+                        },
+                        {
+                        "name": "xingji",
+                        "cmd": "ssh xingji",
+                        "pwd": "password",
+                        "delay":"1"
+                        }
+                        ]
+              }
+              ]
+}
